@@ -43,6 +43,21 @@ NODES_SPEC = Dict(
 )
 REFERENCE_NODE = "levante_cpu"   # the "equivalent nodes" unit
 
+# Annual operating ("running") cost per node, used by the :running_cost basis
+# in StrongScaling_calibrated.jl - this is overwhelmingly electricity, so
+# approximated as:
+#     running cost = nominal node power (kW) x hours/year x PUE x price ($/kWh)
+# SPECULATIVE, like the capital `cost` field above: assumes continuous (24/7)
+# operation all year at the node's nominal power, and a single representative
+# electricity price and data-centre PUE across all these sites (actually a mix
+# of UK and German centres with different billed rates) - replace with each
+# centre's actual rate/PUE if available.
+ELECTRICITY_PRICE_USD_PER_KWH = 0.20   # representative UK/EU industrial rate, 2025-26
+DATACENTRE_PUE                = 1.2    # typical modern HPC data-centre overhead
+HOURS_PER_YEAR                = 8760.
+annual_running_cost_per_node(system) =   # k US$ per node per year
+    NODES_SPEC[system].power * HOURS_PER_YEAR * DATACENTRE_PUE * ELECTRICITY_PRICE_USD_PER_KWH / 1000
+
 # ---------------------------------------------------------------------------
 # ICON (data: Daniel Klocke, Δx = 10 km, checked with him)
 # ---------------------------------------------------------------------------
